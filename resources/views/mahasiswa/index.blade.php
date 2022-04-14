@@ -36,11 +36,11 @@
         <tr> 
             <th>Nim</th> 
             <th>Nama</th>
+            <th>Kelas</th> 
             <th>Email</th>
             <th>Jenis Kelamin</th>
             <th>Tanggal Lahir</th>
             <th>Alamat</th>
-            <th>Kelas</th> 
             <th>Jurusan</th> 
             <th width="280px">Action</th> 
         </tr> 
@@ -49,16 +49,18 @@
              
             <td>{{ $mhs ->nim }}</td> 
             <td>{{ $mhs ->nama }}</td>
+            <td>{{ $mhs ->kelas->nama_kelas }}</td>
             <td>{{ $mhs ->email }}</td>
             <td>{{ $mhs ->jenis_kelamin }}</td>
             <td>{{ $mhs ->tanggal_lahir }}</td> 
             <td>{{ $mhs ->alamat }}</td>    
-            <td>{{ $mhs ->kelas }}</td> 
+            <!-- <td>{{ $mhs ->kelas }}</td>>  -->
             <td>{{ $mhs ->jurusan }}</td> 
         
         <td><form action="{{ route('mahasiswa.destroy',['mahasiswa'=>$mhs->nim]) }}" method="POST"> 
                     <a class="btn btn-info" href="{{ route('mahasiswa.show',$mhs->nim) }}">Show</a> 
-                    <a class="btn btn-primary" href="{{ route('mahasiswa.edit',$mhs->nim) }}">Edit</a> 
+                    <a class="btn btn-primary" href="{{ route('mahasiswa.edit',$mhs->nim) }}">Edit</a>
+                    <a class="btn btn-warning" href="{{ route('nilai',$mhs->nim) }}">Nilai</a> 
                     @csrf 
                     @method('DELETE') 
                     <button type="submit" class="btn btn-danger">Delete</button>             
