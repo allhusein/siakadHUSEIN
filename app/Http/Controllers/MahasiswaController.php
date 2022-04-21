@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Kelas;
 use App\Models\MataKuliah;
 use App\Models\Mahasiswa_MakaKuliah;
+use Illuminate\Support\Facades\Storage;
+use PDF;
 
 class MahasiswaController extends Controller
 {
@@ -58,6 +60,11 @@ class MahasiswaController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->file('foto')) {
+            $image_name = $request->file('foto')->store('fotos', 'public');
+        } else {
+            $image_name = 'default.jpg';
+        }
         //melakukan validasi data
         $request->validate([
         'Nim' => 'required',
@@ -67,7 +74,8 @@ class MahasiswaController extends Controller
         'Jenis_Kelamin' => 'required',
         'Tanggal_Lahir' => 'required',
         'Alamat' => 'required',
-        'Jurusan' => 'required',]);
+        'Jurusan' => 'required',
+    ]);
 
         $mahasiswa = new Mahasiswa;
         $mahasiswa->nim = $request->get('Nim');
@@ -78,14 +86,19 @@ class MahasiswaController extends Controller
         $mahasiswa->tanggal_lahir = $request->get('Tanggal_Lahir');
         $mahasiswa->alamat = $request->get('Alamat');
         $mahasiswa->jurusan= $request->get('Jurusan');
+        $mahasiswa->Foto = $image_name;
         $mahasiswa->save();
 
         $kelas = new Kelas;
         $kelas->id = $request->get('Kelas');
         
+        
+
         //fungsi eloquent untuk menambah data
         $mahasiswa->kelas()->associate($kelas);
         $mahasiswa->save();
+
+       
        
         //jika data berhasil ditambahkan, akan kembali ke halaman utama
         return redirect()->route('mahasiswa.index')
@@ -143,19 +156,25 @@ class MahasiswaController extends Controller
             'Kelas' => 'required',
             'Jurusan' => 'required',
     ]);
+    $mahasiswa = Mahasiswa::with('kelas')->where('nim', $nim)->first();
+    if ($mahasiswa->foto && file_exists(storage_path('app/public/' . $mahasiswa->foto))) {
+     Storage::delete('public/' . $mahasiswa->foto);  
+     }
+     $image_name = $request->file('foto')->store('fotos', 'public');
    //fungsi eloquent untuk mengupdate data inputan kita
-    Mahasiswa::where('nim', $nim)->update([
-   'nim'=>$request->Nim,
-   'nama'=>$request->Nama,
-   'email'=>$request->Email,
-   'jenis_kelamin'=>$request->Jenis_Kelamin,
-   'tanggal_lahir'=>$request->Tanggal_Lahir,
-   'alamat'=>$request->Alamat,
-   'kelas'=>$request->Kelas,
-   'jurusan'=>$request->Jurusan,
-   ]);
+        Mahasiswa::where('nim', $nim)->update([
+        'nim'=>$request->Nim,
+        'nama'=>$request->Nama,
+        'email'=>$request->Email,
+        'jenis_kelamin'=>$request->Jenis_Kelamin,
+        'tanggal_lahir'=>$request->Tanggal_Lahir,
+        'alamat'=>$request->Alamat,
+        'kelas'=>$request->Kelas,
+        'jurusan'=>$request->Jurusan,
+ ]);
 
-   $mahasiswa = Mahasiswa::with('kelas')->where('nim', $Nim)->first();
+  
+
    $mahasiswa->nim = $request->get('Nim');
    $mahasiswa->nama = $request->get('Nama');
    $mahasiswa->email = $request->get('Email');
@@ -164,6 +183,7 @@ class MahasiswaController extends Controller
    $mahasiswa->jenis_kelamin = $request->get('Jenis_Kelamin');
    $mahasiswa->kelas_id = $request->get('Kelas');
    $mahasiswa->jurusan = $request->get('Jurusan');
+   $mahasiswa->Foto = $image_name;
    $mahasiswa->save();
 
    $kelas = new Kelas;
@@ -198,5 +218,13 @@ class MahasiswaController extends Controller
         $mhs = Mahasiswa::with('kelas')->where("nim", $nim)->first();
         $matkul = Mahasiswa_MakaKuliah::with("matakuliah")->where("mahasiswa_id", ($mhs -> id_mahasiswa))->get();
         return view('mahasiswa.nilai', ['mahasiswa' => $mhs,'matakuliah'=>$matkul]);
+    }
+
+    public function cetak($nim){
+        $mhs = Mahasiswa::with('kelas')->where("nim", $nim)->first();
+        $matkul = Mahasiswa_Makakuliah::with("matakuliah")->where("mahasiswa_id", ($mhs -> id_mahasiswa))->get();
+        $pdf = PDF::loadview('mahasiswa.cetak', ['mahasiswa' => $mhs,'matakuliah'=>$matkul]);
+        return $pdf->stream();
+
     }
 }

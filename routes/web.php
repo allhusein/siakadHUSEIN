@@ -22,3 +22,5 @@ Route::get('/', function () {
 Route::resource('mahasiswa',MahasiswaController::class);
 
 Route::get('nilai/{nim}',[MahasiswaController::class,'nilai'])->name('nilai');
+
+Route::get('nilai/{nim}/cetak', [MahasiswaController::class, 'cetak'])->name('cetak');

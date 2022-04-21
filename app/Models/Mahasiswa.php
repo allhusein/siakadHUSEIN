@@ -26,6 +26,7 @@ class Mahasiswa extends Model
      'Alamat',
      'Kelas',
      'Jurusan',
+     'Foto',
      ];
      public function kelas(){
         return $this->belongsTo(Kelas::class);
@@ -33,6 +34,6 @@ class Mahasiswa extends Model
 
     public function mahasiswa_matakuliah()
     {
-        return $this->hasMany(Mahasiswa_MataKuliah::class, 'mahasiswa_id', 'id_mahasiswa');
+        return $this->hasMany(Mahasiswa_MakaKuliah::class, 'mahasiswa_id', 'id_mahasiswa');
     }
 }
