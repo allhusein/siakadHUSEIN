@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MahasiswaController; 
-use Illuminate\Http\Request;  
+use App\Http\Controllers\MahasiswaController;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +16,9 @@ use Illuminate\Http\Request;
 */
 
 Route::get('/', function () {
-   return view('welcome');
+    return view('welcome');
 });
 
-Route::resource('mahasiswa',MahasiswaController::class);
+Route::resource('mahasiswa', MahasiswaController::class);
+Route::get('nilai/{nim}',[MahasiswaController::class,'nilai'])->name('nilai');
+Route::get('nilai/{nim}/cetak', [MahasiswaController::class, 'cetak'])->name('cetak');
